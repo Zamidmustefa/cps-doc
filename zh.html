@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="CPS 智能家居 Frontend V2 与 Backend V2 的安装、配置、运行、接口、结果和支持文档。" />
+  <title>CPS 智能家居 V2 — 项目文档</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到文档正文</a>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="CPS 文档首页">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4 42 14v20L24 44 6 34V14L24 4Z"/><path d="m15 20 9-6 9 6v10l-9 6-9-6V20Z"/><circle cx="24" cy="24" r="4"/></svg></span>
+      <span><strong>CPS 智能家居</strong><small>V2 项目文档</small></span>
+    </a>
+    <div class="topbar-meta">
+      <nav class="language-switch" aria-label="语言">
+        <a href="index.html" lang="en">EN</a>
+        <a href="zh.html" lang="zh-CN" aria-current="page">中文</a>
+      </nav>
+      <span class="version">版本 0.1.0</span>
+      <span class="updated">更新于 2026 年 7 月 19 日</span>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" aria-label="文档导航">
+      <nav>
+        <p class="nav-label">开始</p>
+        <a href="#overview">概述</a>
+        <a href="#architecture">系统架构</a>
+        <p class="nav-label">Frontend V2</p>
+        <a href="#frontend-introduction">项目介绍</a>
+        <a href="#frontend-prerequisites">前置要求</a>
+        <a href="#frontend-installation">安装</a>
+        <a href="#frontend-configuration">配置</a>
+        <a href="#frontend-run">运行方法</a>
+        <p class="nav-label">Backend V2</p>
+        <a href="#backend-introduction">项目介绍</a>
+        <a href="#backend-prerequisites">前置要求</a>
+        <a href="#backend-installation">安装</a>
+        <a href="#backend-configuration">配置</a>
+        <a href="#backend-run">运行方法</a>
+        <a href="#data-channels">数据通道</a>
+        <a href="#websockets">WebSocket</a>
+        <p class="nav-label">交付信息</p>
+        <a href="#results">结果与验证</a>
+        <a href="#docker">Docker</a>
+        <a href="#troubleshooting">常见问题</a>
+        <a href="#project-links">源码与支持</a>
+      </nav>
+    </aside>
+
+    <main id="main" class="content">
+      <section id="overview" class="hero doc-section">
+        <div class="eyebrow">项目文档</div>
+        <h1>智能家居感知、可视化与本地 AI 对话平台</h1>
+        <p class="hero-copy">CPS 智能家居 V2 由 Vue 仪表板和 Node.js API 组成。后端接收传感器 JSON，通过实时数据流更新前端，并将浏览器对话转发给本地 Ollama 智能体。本指南提供从新电脑到可运行开发环境的最短可靠步骤。</p>
+        <div class="hero-actions"><a class="button primary" href="#frontend-installation">安装前端</a><a class="button secondary" href="#backend-installation">安装后端</a></div>
+        <div class="status-grid" aria-label="项目状态">
+          <article><span class="status-icon success">✓</span><div><strong>前端构建</strong><small>通过 · Vite 7.3.5</small></div></article>
+          <article><span class="status-icon success">✓</span><div><strong>后端测试</strong><small>4 项通过 · 0 项失败</small></div></article>
+          <article><span class="status-icon live"></span><div><strong>数据传输</strong><small>HTTP 写入 + SSE</small></div></article>
+          <article><span class="status-icon neutral">5</span><div><strong>传感器通道</strong><small>5 个独立实时数据源</small></div></article>
+        </div>
+      </section>
+
+      <section id="architecture" class="doc-section">
+        <div class="section-heading"><span>01</span><div><h2>系统架构</h2><p>浏览器不会直接连接学生的传感器电脑，也不会接收 Ollama 智能体令牌。</p></div></div>
+        <div class="architecture" role="img" aria-label="传感器电脑向后端发送 JSON，后端将新数据推送到 Vue 仪表板。">
+          <article><span class="diagram-icon">01</span><strong>传感器电脑</strong><small>每 2–3 秒 POST JSON</small></article><span class="diagram-arrow">→</span>
+          <article class="accent"><span class="diagram-icon">02</span><strong>Backend V2</strong><small>Express · 内存存储 · SSE</small></article><span class="diagram-arrow">→</span>
+          <article><span class="diagram-icon">03</span><strong>Frontend V2</strong><small>Vue 仪表板 · 实时状态</small></article>
+        </div>
+        <div class="callout info"><strong>实时状态：</strong>学生端只需发送普通 HTTP 请求，不需要建立 WebSocket。前端订阅 SSE；若 10 秒内没有收到新数据，设备状态由“在线”变为“离线”。</div>
+      </section>
+
+      <section class="doc-section product-section">
+        <div class="product-banner frontend"><span>Frontend V2</span><strong>Vue 3 仪表板</strong><small>Vite · Ant Design Vue · Supabase · Plotly</small></div>
+        <div id="frontend-introduction" class="subsection anchor-target">
+          <h2>前端介绍</h2>
+          <p>前端将多个独立的智能家居感知数据源集中显示，主要用户包括学生、教师和实验室演示人员。范围包括中英文界面、学科提升页面、身份验证、传感器图表、设备在线/离线状态、事件面板、视频占位界面和 CPS 对话。</p>
+        </div>
+        <div id="frontend-prerequisites" class="subsection anchor-target">
+          <h3>前置要求</h3>
+          <div class="requirement-grid">
+            <article><strong>Node.js</strong><span>建议 22.x</span><small>支持 ≥22 且 &lt;25</small></article>
+            <article><strong>npm</strong><span>随 Node.js 安装</span><small>使用 package-lock.json</small></article>
+            <article><strong>Git</strong><span>最新稳定版本</span><small>用于获取源码</small></article>
+            <article><strong>浏览器</strong><span>Chrome、Edge 或 Firefox</span><small>最新稳定版本</small></article>
+            <article><strong>Supabase</strong><span>项目 URL 和发布密钥</span><small>用于托管身份验证</small></article>
+            <article><strong>后端服务</strong><span>本地或已部署地址</span><small>用于实时数据和对话</small></article>
+          </div>
+        </div>
+        <div id="frontend-installation" class="subsection anchor-target">
+          <h3>安装</h3>
+          <ol class="steps">
+            <li><div><strong>获取项目</strong><p>确定 GitHub 地址后替换以下占位符。</p><pre><code>git clone https://github.com/ORGANIZATION/REPOSITORY.git
+cd REPOSITORY/frontend-v2</code></pre></div></li>
+            <li><div><strong>安装锁定版本的依赖</strong><pre><code>npm ci</code></pre></div></li>
+            <li><div><strong>创建本地配置</strong><pre><code># Windows PowerShell
+Copy-Item .env.example .env
+
+# macOS 或 Linux
+cp .env.example .env</code></pre></div></li>
+          </ol>
+        </div>
+        <div id="frontend-configuration" class="subsection anchor-target">
+          <h3>配置与设置</h3>
+          <div class="callout warning"><strong>浏览器安全：</strong>前端只能使用 Supabase 发布密钥。不要将服务角色密钥、数据通道写入密钥或智能体令牌写入任何 <code>VITE_*</code> 变量。</div>
+          <div class="table-wrap"><table><thead><tr><th>变量</th><th>用途</th><th>本地示例</th></tr></thead><tbody>
+            <tr><td><code>VITE_SUPABASE_URL</code></td><td>Supabase 项目地址。</td><td><code>https://PROJECT.supabase.co</code></td></tr>
+            <tr><td><code>VITE_SUPABASE_PUBLISHABLE_KEY</code></td><td>可在浏览器使用的 Supabase 发布密钥。</td><td><code>your-publishable-key</code></td></tr>
+            <tr><td><code>VITE_API_URL</code></td><td>REST 与 SSE 基础地址。</td><td><code>http://localhost:7020</code></td></tr>
+            <tr><td><code>VITE_CHAT_WS_URL</code></td><td>浏览器对话 WebSocket 地址。</td><td><code>ws://localhost:7020/ws/client</code></td></tr>
+          </tbody></table></div>
+        </div>
+        <div id="frontend-run" class="subsection anchor-target">
+          <h3>运行方法</h3>
+          <div class="command-cards">
+            <article><span>开发模式</span><pre><code>npm run dev</code></pre><p>打开 <a href="http://localhost:3000">http://localhost:3000</a>。</p></article>
+            <article><span>生产构建检查</span><pre><code>npm run build
+npm run preview</code></pre><p>预览默认使用 3000 端口。</p></article>
+          </div>
+          <p class="note"><strong>登录账户：</strong>仓库中没有公共演示账户。请使用当前 Supabase 项目中的账户；若临时关闭了身份验证守卫，可直接访问页面。</p>
+        </div>
+      </section>
+
+      <section class="doc-section product-section">
+        <div class="product-banner backend"><span>Backend V2</span><strong>传感器与对话网关</strong><small>Node.js · Express · WebSocket · Server-Sent Events</small></div>
+        <div id="backend-introduction" class="subsection anchor-target">
+          <h2>后端介绍</h2>
+          <p>后端为智能家居数据和本地 AI 对话提供统一入口，服务对象为学生传感器团队、Vue 仪表板和运行 Ollama 的电脑。功能包括健康检查、JSON 写入、受限内存历史、SSE 更新、可选 API 密钥、语音服务代理、可选 Kokoro TTS 和 WebSocket 对话中继。</p>
+        </div>
+        <div id="backend-prerequisites" class="subsection anchor-target">
+          <h3>前置要求</h3>
+          <div class="requirement-grid">
+            <article><strong>Node.js</strong><span>20.x 或 22.x</span><small>支持 ≥20 且 &lt;25</small></article>
+            <article><strong>npm</strong><span>随 Node.js 安装</span><small>使用 package-lock.json</small></article>
+            <article><strong>Git</strong><span>最新稳定版本</span><small>用于获取源码</small></article>
+            <article><strong>网络端口</strong><span>TCP 7020</span><small>可通过 PORT 修改</small></article>
+            <article><strong>Ollama</strong><span>可选</span><small>仅本地 CPS 对话需要</small></article>
+            <article><strong>Python 3</strong><span>可选</span><small>仅 Python 发送示例需要</small></article>
+          </div>
+        </div>
+        <div id="backend-installation" class="subsection anchor-target">
+          <h3>安装</h3>
+          <ol class="steps">
+            <li><div><strong>进入后端目录</strong><pre><code>cd REPOSITORY/backend-v2</code></pre></div></li>
+            <li><div><strong>安装锁定版本的依赖</strong><pre><code>npm ci</code></pre></div></li>
+            <li><div><strong>创建本地配置</strong><pre><code>Copy-Item .env.example .env</code></pre></div></li>
+            <li><div><strong>替换开发占位符</strong><p>为 <code>AGENT_TOKEN</code> 生成唯一值；生产环境还应设置 <code>DATA_CHANNEL_API_KEY</code>。</p></div></li>
+          </ol>
+        </div>
+        <div id="backend-configuration" class="subsection anchor-target">
+          <h3>配置与设置</h3>
+          <div class="table-wrap"><table><thead><tr><th>变量</th><th>是否需要</th><th>说明</th></tr></thead><tbody>
+            <tr><td><code>PORT</code></td><td>是</td><td>HTTP 与 WebSocket 端口，默认 <code>7020</code>。</td></tr>
+            <tr><td><code>AGENT_TOKEN</code></td><td>对话需要</td><td>仅本地 Ollama 智能体使用的私密令牌。</td></tr>
+            <tr><td><code>FRONTEND_URLS</code></td><td>是</td><td>CORS 允许的前端来源，以逗号分隔。</td></tr>
+            <tr><td><code>DATA_CHANNEL_API_KEY</code></td><td>生产环境</td><td>保护传感器 POST；为空时允许本地匿名写入。</td></tr>
+            <tr><td><code>DATA_CHANNEL_HISTORY_LIMIT</code></td><td>否</td><td>每通道最多记录数，默认 <code>25</code>。</td></tr>
+            <tr><td><code>DATA_CHANNEL_MAX_HISTORY_BYTES</code></td><td>否</td><td>每通道内存上限，默认 5 MB。</td></tr>
+            <tr><td><code>CLIENT_TIMEOUT_MS</code></td><td>否</td><td>对话超时，默认 120000 毫秒。</td></tr>
+            <tr><td><code>KOKORO_ENABLED</code></td><td>否</td><td>512 MB 云实例应保持 <code>false</code>。</td></tr>
+          </tbody></table></div>
+          <div class="callout danger"><strong>不要提交密钥：</strong>真实 <code>.env</code>、数据通道 API 密钥、Supabase 私密凭据和智能体令牌均不得写入文档或提交到源码仓库。</div>
+        </div>
+        <div id="backend-run" class="subsection anchor-target">
+          <h3>运行方法</h3>
+          <div class="command-cards">
+            <article><span>开发模式</span><pre><code>npm run dev</code></pre><p>使用 Node watch 自动重启。</p></article>
+            <article><span>正常启动</span><pre><code>npm start</code></pre><p>API：<a href="http://localhost:7020">http://localhost:7020</a></p></article>
+            <article><span>自动化测试</span><pre><code>npm test</code></pre><p>运行数据通道测试。</p></article>
+          </div>
+          <pre><code>curl http://localhost:7020/ping
+curl http://localhost:7020/health
+curl http://localhost:7020/api/data-channels</code></pre>
+        </div>
+        <div id="data-channels" class="subsection anchor-target">
+          <h3>智能家居数据通道</h3>
+          <p>每个通道互相独立。POST 接受 JSON 对象或数组并返回 <code>202 Accepted</code>。数据保存在内存中，后端重启后会清空。</p>
+          <div class="channel-grid">
+            <article><img src="assets/csi-wifi.svg" alt=""/><div><strong>CSI – WiFi</strong><code>csi-wifi</code></div></article>
+            <article><img src="assets/body-vitals.svg" alt=""/><div><strong>身体体征</strong><code>body-vitals</code></div></article>
+            <article><img src="assets/lighting-acoustic.svg" alt=""/><div><strong>照明与声学</strong><code>lighting-acoustic</code></div></article>
+            <article><img src="assets/hic.svg" alt=""/><div><strong>人机交互</strong><code>hic</code></div></article>
+            <article><img src="assets/gaze-vision.svg" alt=""/><div><strong>视线与视觉</strong><code>gaze-vision</code></div></article>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>操作</th><th>路径</th><th>用途</th></tr></thead><tbody>
+            <tr><td><span class="method post">POST</span></td><td><code>/api/data-channels/:channel</code></td><td>接收一条新 JSON 数据。</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/api/data-channels/:channel/latest</code></td><td>返回最新数据。</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/api/data-channels/:channel/history?limit=20</code></td><td>按从旧到新的顺序返回历史。</td></tr>
+            <tr><td><span class="method sse">SSE</span></td><td><code>/api/data-channels/:channel/stream</code></td><td>成功写入后立即推送。</td></tr>
+          </tbody></table></div>
+          <h4>请求示例</h4>
+          <pre><code>curl -X POST http://localhost:7020/api/data-channels/body-vitals \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_INGESTION_KEY" \
+  -H "X-Source-Id: student-laptop-01" \
+  -d '{"timestamp":"2026-07-19T12:00:00Z","heart_rate_bpm":78}'</code></pre>
+          <h4>学生文件发送程序</h4>
+          <pre><code># Node.js 20+
+node examples/send-json-file.js data.json
+
+# Python 3，不需要第三方包
+python examples/send_json_file.py data.json</code></pre>
+          <p class="note"><strong><code>X-Source-Id</code> 不是密码。</strong>它是显示发送设备的可读名称，例如 <code>team-2-laptop</code>。</p>
+        </div>
+        <div id="websockets" class="subsection anchor-target">
+          <h3>对话 WebSocket</h3>
+          <div class="table-wrap"><table><thead><tr><th>客户端</th><th>地址</th><th>认证</th></tr></thead><tbody>
+            <tr><td>Vue 浏览器</td><td><code>GET /ws/client</code></td><td>不会暴露智能体令牌。</td></tr>
+            <tr><td>本地 Ollama 智能体</td><td><code>GET /ws/agent?token=AGENT_TOKEN</code></td><td>私密 <code>AGENT_TOKEN</code>。</td></tr>
+          </tbody></table></div>
+          <p>配置 Ollama 和一致的 <code>AGENT_TOKEN</code> 后，使用 <code>node local-agent.js</code> 启动可选本地智能体。模型设置请参阅 <code>backend-v2/CHAT_AGENT_SETUP.md</code>。</p>
+        </div>
+      </section>
+
+      <section id="results" class="doc-section">
+        <div class="section-heading"><span>02</span><div><h2>结果与验证</h2><p>以下证据来自 2026 年 7 月 19 日的 Windows PowerShell 测试。</p></div></div>
+        <div class="results-grid">
+          <article><div class="result-top"><span class="result-check">✓</span><strong>前端生产构建</strong></div><p><code>npm run build</code> 成功，Vite 转换 3,346 个模块，用时约 65 秒。</p><small>证据：Vite 7.3.5 构建输出。</small></article>
+          <article><div class="result-top"><span class="result-check">✓</span><strong>后端自动化测试</strong></div><p>4 项通过，0 项失败。包括通道列表、历史隔离、内存限制和 SSE 推送。</p><small>证据：Node 测试运行器，用时 4.51 秒。</small></article>
+          <article><div class="result-top"><span class="result-check">✓</span><strong>实时仪表板</strong></div><p>SSE 推送新数据。数据停止约 10 秒后，通道状态从“在线”变为“离线”。</p><small>测试数据：每 3 秒发送一次 JSON。</small></article>
+        </div>
+        <div class="callout warning"><strong>已知限制：</strong>通道历史只保存在内存中；前端构建仍有大分块警告；CPS 对话依赖本地 Ollama 智能体；小型云实例应禁用 Kokoro TTS。</div>
+      </section>
+
+      <section id="docker" class="doc-section">
+        <div class="section-heading"><span>03</span><div><h2>Docker</h2><p>当前状态与后续交付模板。</p></div></div>
+        <div class="callout neutral"><strong>目前尚未配置。</strong><code>frontend-v2</code> 与 <code>backend-v2</code> 中没有 Dockerfile、Compose 文件或已发布镜像。以下命令仅供添加 Dockerfile 后使用，未计入验证结果。</div>
+        <div class="command-cards">
+          <article><span>后端模板</span><pre><code>docker build -t cps-backend-v2 ./backend-v2
+docker run --env-file backend-v2/.env \
+  -p 7020:7020 cps-backend-v2</code></pre></article>
+          <article><span>前端模板</span><pre><code>docker build -t cps-frontend-v2 ./frontend-v2
+docker run --env-file frontend-v2/.env \
+  -p 3000:3000 cps-frontend-v2</code></pre></article>
+        </div>
+      </section>
+
+      <section id="troubleshooting" class="doc-section">
+        <div class="section-heading"><span>04</span><div><h2>常见问题</h2><p>最常见的安装与运行问题。</p></div></div>
+        <div class="faq">
+          <details open><summary>前端打开后没有实时数据</summary><p>检查 <code>VITE_API_URL</code> 是否指向正在运行的后端；修改 <code>.env</code> 后重启 Vite；直接打开 <code>/api/data-channels</code> 检查连接；确认 CORS 允许当前前端来源。</p></details>
+          <details><summary>发送程序返回 HTTP 404 Route not found</summary><p>使用准确地址 <code>/api/data-channels/CHANNEL_SLUG</code>。有效 slug 为 <code>csi-wifi</code>、<code>body-vitals</code>、<code>lighting-acoustic</code>、<code>hic</code> 和 <code>gaze-vision</code>。</p></details>
+          <details><summary>发送程序返回 HTTP 401 或 403</summary><p>发送端密钥与后端 <code>DATA_CHANNEL_API_KEY</code> 不一致。通过 <code>X-API-Key</code> 或 Bearer Authorization 发送，不要把密钥写入前端。</p></details>
+          <details><summary>CPS 对话显示本地 Ollama 电脑离线</summary><p>先启动 Ollama，再启动 <code>local-agent.js</code>。检查 WebSocket 地址和本地、云端的 <code>AGENT_TOKEN</code> 是否一致。</p></details>
+          <details><summary>云实例超过 512 MB 内存</summary><p>保持 <code>KOKORO_ENABLED=false</code>，保留每通道字节上限，减少大型 CSI 数据，并缩短通道历史。</p></details>
+        </div>
+      </section>
+
+      <section id="project-links" class="doc-section">
+        <div class="section-heading"><span>05</span><div><h2>源码、支持与所有权</h2><p>公开提交之前，请完成以下占位内容。</p></div></div>
+        <div class="link-grid">
+          <article><span>GitHub 仓库</span><strong>尚未配置</strong><p><code>git remote -v</code> 没有返回远程地址。</p></article>
+          <article><span>分支 / 发布</span><strong><code>main</code></strong><p>最终评审前添加版本标签。</p></article>
+          <article><span>后端演示</span><strong><a href="https://cps-smart-home-backend-v2.onrender.com">Render 部署</a></strong><p>项目当前配置的公共后端。</p></article>
+          <article><span>Docker 镜像</span><strong>尚未发布</strong><p>实现后添加 Docker Hub 或镜像仓库链接。</p></article>
+          <article><span>许可证</span><strong>尚未声明</strong><p>添加 LICENSE 文件和 SPDX 名称。</p></article>
+          <article><span>支持方式</span><strong>项目维护人员</strong><p>添加问题跟踪器或受监控的联系邮箱。</p></article>
+        </div>
+        <div class="owner-card">
+          <div><span>作者姓名</span><strong>[学生 / 团队名称]</strong></div><div><span>学生编号</span><strong>[学生编号]</strong></div>
+          <div><span>邮箱</span><strong>[学校邮箱]</strong></div><div><span>机构</span><strong>[院系 / 学校]</strong></div>
+        </div>
+      </section>
+      <footer><p>CPS 智能家居 V2 · 前端与后端项目文档</p><a href="#overview">返回顶部 ↑</a></footer>
+    </main>
+  </div>
+</body>
+</html>

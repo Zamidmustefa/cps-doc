@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Installation, configuration, operation, API, results, and support documentation for CPS Smart Home Frontend V2 and Backend V2." />
+  <title>cps-doc.github.io — CPS Smart Home V2 Documentation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to documentation</a>
+
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="CPS documentation home">
+      <span><strong>CPS Smart Home</strong><small>V2 Documentation</small></span>
+    </a>
+    <div class="topbar-meta">
+      <nav class="language-switch" aria-label="Language">
+        <a href="index.html" lang="en" aria-current="page">EN</a>
+        <a href="zh.html" lang="zh-CN">中文</a>
+      </nav>
+      <span class="version">Version 0.1.0</span>
+      <span class="updated">Updated 19 July 2026</span>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" aria-label="Documentation navigation">
+      <nav>
+        <p class="nav-label">Start here</p>
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <p class="nav-label">Frontend V2</p>
+        <a href="#frontend-introduction">Introduction</a>
+        <a href="#frontend-prerequisites">Prerequisites</a>
+        <a href="#frontend-installation">Installation</a>
+        <a href="#frontend-configuration">Configuration</a>
+        <a href="#frontend-run">How to run</a>
+        <p class="nav-label">Backend V2</p>
+        <a href="#backend-introduction">Introduction</a>
+        <a href="#backend-prerequisites">Prerequisites</a>
+        <a href="#backend-installation">Installation</a>
+        <a href="#backend-configuration">Configuration</a>
+        <a href="#backend-run">How to run</a>
+        <a href="#data-channels">Data channels</a>
+        <a href="#websockets">WebSockets</a>
+        <p class="nav-label">Handoff</p>
+        <a href="#results">Results</a>
+        <a href="#docker">Docker</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#project-links">Source &amp; support</a>
+      </nav>
+    </aside>
+
+    <main id="main" class="content">
+      <section id="overview" class="hero doc-section">
+        <div class="eyebrow">Project documentation</div>
+        <h1>Smart-home sensing, visualization, and local AI chat.</h1>
+        <p class="hero-copy">CPS Smart Home V2 combines a Vue dashboard with a Node.js API that receives sensor JSON, streams new readings in real time, and relays browser chat to a local Ollama agent. This guide provides the shortest reliable path from a clean computer to a working development environment.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#frontend-installation">Install frontend</a>
+          <a class="button secondary" href="#backend-installation">Install backend</a>
+        </div>
+        <div class="status-grid" aria-label="Project status">
+          <article><span class="status-icon success">✓</span><div><strong>Frontend build</strong><small>Passed · Vite 7.3.5</small></div></article>
+          <article><span class="status-icon success">✓</span><div><strong>Backend tests</strong><small>4 passed · 0 failed</small></div></article>
+          <article><span class="status-icon live"></span><div><strong>Data transport</strong><small>HTTP ingestion + SSE</small></div></article>
+          <article><span class="status-icon neutral">5</span><div><strong>Sensor channels</strong><small>Independent live feeds</small></div></article>
+        </div>
+      </section>
+
+      <section id="architecture" class="doc-section">
+        <div class="section-heading"><span>01</span><div><h2>System architecture</h2><p>The browser never connects directly to sensor computers or receives the Ollama agent token.</p></div></div>
+        <div class="architecture" role="img" aria-label="Sensor computers post JSON to the backend. The backend streams readings to the Vue dashboard. Browser chat is relayed through WebSocket to a local Ollama agent.">
+          <article><span class="diagram-icon">01</span><strong>Sensor computers</strong><small>POST JSON every 2–3 seconds</small></article>
+          <span class="diagram-arrow">→</span>
+          <article class="accent"><span class="diagram-icon">02</span><strong>Backend V2</strong><small>Express · memory store · SSE</small></article>
+          <span class="diagram-arrow">→</span>
+          <article><span class="diagram-icon">03</span><strong>Frontend V2</strong><small>Vue dashboard · live status</small></article>
+        </div>
+        <div class="callout info"><strong>Real-time behavior.</strong> Students send normal HTTP requests; they do not need WebSockets. The frontend subscribes to an SSE stream and marks a device <em>Offline</em> when no new reading arrives for 10 seconds.</div>
+      </section>
+
+      <section class="doc-section product-section">
+        <div class="product-banner frontend"><span>Frontend V2</span><strong>Vue 3 dashboard</strong><small>Vite · Ant Design Vue · Supabase · Plotly</small></div>
+
+        <div id="frontend-introduction" class="subsection anchor-target">
+          <h2>Frontend introduction</h2>
+          <p>The frontend solves the problem of understanding several independent smart-home sensing feeds in one place. It is intended for students, instructors, and laboratory demonstrators. Its scope includes bilingual dashboards, academic-discipline content, authentication integration, sensor visualizations, online/offline device status, event panels, video placeholders, and CPS chat.</p>
+        </div>
+
+        <div id="frontend-prerequisites" class="subsection anchor-target">
+          <h3>Prerequisites</h3>
+          <div class="requirement-grid">
+            <article><strong>Node.js</strong><span>22.x recommended</span><small>Supported: ≥22 and &lt;25</small></article>
+            <article><strong>npm</strong><span>Bundled with Node.js</span><small>Uses package-lock.json</small></article>
+            <article><strong>Git</strong><span>Recent stable version</span><small>For obtaining source</small></article>
+            <article><strong>Browser</strong><span>Chrome, Edge, or Firefox</span><small>Current stable release</small></article>
+            <article><strong>Supabase</strong><span>Project URL + publishable key</span><small>Required for hosted authentication</small></article>
+            <article><strong>Backend</strong><span>Local or deployed URL</span><small>Required for live channels and chat</small></article>
+          </div>
+        </div>
+
+        <div id="frontend-installation" class="subsection anchor-target">
+          <h3>Installation</h3>
+          <ol class="steps">
+            <li><div><strong>Obtain the project</strong><p>Replace the placeholder after a GitHub remote is assigned.</p><pre><code>git clone https://github.com/ORGANIZATION/REPOSITORY.git
+cd REPOSITORY/frontend-v2</code></pre></div></li>
+            <li><div><strong>Install locked dependencies</strong><p>Use <code>npm ci</code> for a repeatable installation.</p><pre><code>npm ci</code></pre></div></li>
+            <li><div><strong>Create local configuration</strong><pre><code># Windows PowerShell
+Copy-Item .env.example .env
+
+# macOS or Linux
+cp .env.example .env</code></pre></div></li>
+          </ol>
+        </div>
+
+        <div id="frontend-configuration" class="subsection anchor-target">
+          <h3>Configuration &amp; setup</h3>
+          <div class="callout warning"><strong>Browser security.</strong> Only place Supabase publishable/anonymous credentials in <code>VITE_*</code> variables. Never put a service-role key, private key, data-channel ingestion key, or agent token in the frontend.</div>
+          <div class="table-wrap"><table><thead><tr><th>Variable</th><th>Purpose</th><th>Local example</th></tr></thead><tbody>
+            <tr><td><code>VITE_SUPABASE_URL</code></td><td>Hosted Supabase project URL.</td><td><code>https://PROJECT.supabase.co</code></td></tr>
+            <tr><td><code>VITE_SUPABASE_PUBLISHABLE_KEY</code></td><td>Browser-safe Supabase publishable key.</td><td><code>your-publishable-key</code></td></tr>
+            <tr><td><code>VITE_API_URL</code></td><td>Base URL for REST and SSE requests.</td><td><code>http://localhost:7020</code></td></tr>
+            <tr><td><code>VITE_CHAT_WS_URL</code></td><td>Browser chat WebSocket endpoint.</td><td><code>ws://localhost:7020/ws/client</code></td></tr>
+          </tbody></table></div>
+          <pre><code>VITE_SUPABASE_URL=https://PROJECT.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+VITE_API_URL=http://localhost:7020
+VITE_CHAT_WS_URL=ws://localhost:7020/ws/client</code></pre>
+        </div>
+
+        <div id="frontend-run" class="subsection anchor-target">
+          <h3>How to run</h3>
+          <div class="command-cards">
+            <article><span>Development</span><pre><code>npm run dev</code></pre><p>Open <a href="http://localhost:3000">http://localhost:3000</a>.</p></article>
+            <article><span>Production check</span><pre><code>npm run build
+npm run preview</code></pre><p>The preview also defaults to port 3000.</p></article>
+          </div>
+          <p class="note"><strong>Login credentials:</strong> no shared demo account is stored in this repository. Use an account from the configured Supabase project, or keep the current temporary browser-access configuration if authentication guards are disabled.</p>
+        </div>
+      </section>
+
+      <section class="doc-section product-section">
+        <div class="product-banner backend"><span>Backend V2</span><strong>Sensor and chat gateway</strong><small>Node.js · Express · WebSocket · Server-Sent Events</small></div>
+
+        <div id="backend-introduction" class="subsection anchor-target">
+          <h2>Backend introduction</h2>
+          <p>The backend provides one stable public gateway for smart-home data and local AI chat. It is intended for student sensor teams, the Vue dashboard, and a computer running Ollama. Its scope includes health endpoints, JSON ingestion, bounded in-memory channel history, SSE updates, optional API-key protection, voice-service proxying, optional Kokoro TTS, and browser-to-agent WebSocket relay.</p>
+        </div>
+
+        <div id="backend-prerequisites" class="subsection anchor-target">
+          <h3>Prerequisites</h3>
+          <div class="requirement-grid">
+            <article><strong>Node.js</strong><span>20.x or 22.x</span><small>Supported: ≥20 and &lt;25</small></article>
+            <article><strong>npm</strong><span>Bundled with Node.js</span><small>Uses package-lock.json</small></article>
+            <article><strong>Git</strong><span>Recent stable version</span><small>For obtaining source</small></article>
+            <article><strong>Network port</strong><span>TCP 7020</span><small>Change with <code>PORT</code></small></article>
+            <article><strong>Ollama</strong><span>Optional</span><small>Only required for local CPS chat</small></article>
+            <article><strong>Python 3</strong><span>Optional</span><small>Only for the Python sender example</small></article>
+          </div>
+        </div>
+
+        <div id="backend-installation" class="subsection anchor-target">
+          <h3>Installation</h3>
+          <ol class="steps">
+            <li><div><strong>Enter the backend directory</strong><pre><code>cd REPOSITORY/backend-v2</code></pre></div></li>
+            <li><div><strong>Install locked dependencies</strong><pre><code>npm ci</code></pre></div></li>
+            <li><div><strong>Create local configuration</strong><pre><code># Windows PowerShell
+Copy-Item .env.example .env
+
+# macOS or Linux
+cp .env.example .env</code></pre></div></li>
+            <li><div><strong>Replace development placeholders</strong><p>Generate unique values for <code>AGENT_TOKEN</code> and, when ingestion must be protected, <code>DATA_CHANNEL_API_KEY</code>.</p></div></li>
+          </ol>
+        </div>
+
+        <div id="backend-configuration" class="subsection anchor-target">
+          <h3>Configuration &amp; setup</h3>
+          <div class="table-wrap"><table><thead><tr><th>Variable</th><th>Required</th><th>Description / safe default</th></tr></thead><tbody>
+            <tr><td><code>PORT</code></td><td>Yes</td><td>HTTP and WebSocket port. Default: <code>7020</code>.</td></tr>
+            <tr><td><code>AGENT_TOKEN</code></td><td>For chat</td><td>Private token used only by the local Ollama agent.</td></tr>
+            <tr><td><code>FRONTEND_URLS</code></td><td>Yes</td><td>Comma-separated browser origins allowed by CORS.</td></tr>
+            <tr><td><code>DATA_CHANNEL_API_KEY</code></td><td>Production</td><td>Protects sensor POST requests. Empty permits local unauthenticated ingestion.</td></tr>
+            <tr><td><code>DATA_CHANNEL_HISTORY_LIMIT</code></td><td>No</td><td>Maximum entries per channel. Default: <code>25</code>.</td></tr>
+            <tr><td><code>DATA_CHANNEL_MAX_HISTORY_BYTES</code></td><td>No</td><td>Memory cap per channel. Default: <code>5242880</code> (5 MB).</td></tr>
+            <tr><td><code>CLIENT_TIMEOUT_MS</code></td><td>No</td><td>Chat request timeout. Default: <code>120000</code>.</td></tr>
+            <tr><td><code>VOICE_SERVICE_URL</code></td><td>No</td><td>Optional separate voice service, default <code>http://127.0.0.1:7010</code>.</td></tr>
+            <tr><td><code>KOKORO_ENABLED</code></td><td>No</td><td>Keep <code>false</code> on a 512 MB instance.</td></tr>
+            <tr><td><code>KEEP_ALIVE_ENABLED</code></td><td>No</td><td>Optional deployment keep-alive. Default: <code>false</code>.</td></tr>
+          </tbody></table></div>
+          <div class="callout danger"><strong>Do not commit secrets.</strong> Keep the real <code>.env</code>, data-channel API key, Supabase private credentials, and agent token outside documentation and source control. If a key has already been shared publicly, rotate it.</div>
+        </div>
+
+        <div id="backend-run" class="subsection anchor-target">
+          <h3>How to run</h3>
+          <div class="command-cards">
+            <article><span>Development</span><pre><code>npm run dev</code></pre><p>Automatic restart with Node watch mode.</p></article>
+            <article><span>Normal start</span><pre><code>npm start</code></pre><p>API: <a href="http://localhost:7020">http://localhost:7020</a></p></article>
+            <article><span>Tests</span><pre><code>npm test</code></pre><p>Runs the Node data-channel test suite.</p></article>
+          </div>
+          <pre><code>curl http://localhost:7020/ping
+curl http://localhost:7020/health
+curl http://localhost:7020/api/data-channels</code></pre>
+        </div>
+
+        <div id="data-channels" class="subsection anchor-target">
+          <h3>Smart-home data channels</h3>
+          <p>Each channel is independent. POST accepts a JSON object or array and returns <code>202 Accepted</code>. Readings are stored in memory and are cleared when the process restarts.</p>
+          <div class="channel-grid">
+            <article><img src="assets/csi-wifi.svg" alt=""/><div><strong>CSI – WiFi</strong><code>csi-wifi</code></div></article>
+            <article><img src="assets/body-vitals.svg" alt=""/><div><strong>Body Vitals</strong><code>body-vitals</code></div></article>
+            <article><img src="assets/lighting-acoustic.svg" alt=""/><div><strong>Lighting &amp; Acoustic</strong><code>lighting-acoustic</code></div></article>
+            <article><img src="assets/hic.svg" alt=""/><div><strong>HIC</strong><code>hic</code></div></article>
+            <article><img src="assets/gaze-vision.svg" alt=""/><div><strong>Gaze &amp; Vision</strong><code>gaze-vision</code></div></article>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Path pattern</th><th>Purpose</th></tr></thead><tbody>
+            <tr><td><span class="method post">POST</span></td><td><code>/api/data-channels/:channel</code></td><td>Accept one new JSON reading.</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/api/data-channels/:channel/latest</code></td><td>Return the newest reading.</td></tr>
+            <tr><td><span class="method get">GET</span></td><td><code>/api/data-channels/:channel/history?limit=20</code></td><td>Return oldest-to-newest history.</td></tr>
+            <tr><td><span class="method sse">SSE</span></td><td><code>/api/data-channels/:channel/stream</code></td><td>Push each successful reading immediately.</td></tr>
+          </tbody></table></div>
+          <h4>Sample request</h4>
+          <pre><code>curl -X POST http://localhost:7020/api/data-channels/body-vitals \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_INGESTION_KEY" \
+  -H "X-Source-Id: student-laptop-01" \
+  -d '{"timestamp":"2026-07-19T12:00:00Z","heart_rate_bpm":78}'</code></pre>
+          <h4>Student file senders</h4>
+          <p>The ready-made scripts read a JSON file and send it every three seconds. Update their channel and source identifier before use.</p>
+          <pre><code># Node.js 20+
+node examples/send-json-file.js data.json
+
+# Python 3; no third-party package required
+python examples/send_json_file.py data.json</code></pre>
+          <p class="note"><strong><code>X-Source-Id</code> is not a password.</strong> It is a readable label such as <code>team-2-laptop</code> that identifies the sender in the dashboard.</p>
+        </div>
+
+        <div id="websockets" class="subsection anchor-target">
+          <h3>Chat WebSockets</h3>
+          <div class="table-wrap"><table><thead><tr><th>Client</th><th>Endpoint</th><th>Authentication</th></tr></thead><tbody>
+            <tr><td>Vue browser</td><td><code>GET /ws/client</code></td><td>No agent token is exposed.</td></tr>
+            <tr><td>Local Ollama agent</td><td><code>GET /ws/agent?token=AGENT_TOKEN</code></td><td>Private <code>AGENT_TOKEN</code>.</td></tr>
+          </tbody></table></div>
+          <pre><code>{
+  "type": "chat",
+  "requestId": "unique-request-id",
+  "messages": [{ "role": "user", "content": "Hello" }]
+}</code></pre>
+          <p>Start the optional local agent with <code>node local-agent.js</code> after configuring Ollama and matching <code>AGENT_TOKEN</code> values. See <code>backend-v2/CHAT_AGENT_SETUP.md</code> for the model setup details.</p>
+        </div>
+      </section>
+
+      <section id="results" class="doc-section">
+        <div class="section-heading"><span>02</span><div><h2>Results &amp; verification</h2><p>Evidence recorded on Windows PowerShell with the repository state from 19 July 2026.</p></div></div>
+        <div class="results-grid">
+          <article><div class="result-top"><span class="result-check">✓</span><strong>Frontend production build</strong></div><p><code>npm run build</code> completed successfully with 3,346 modules transformed in approximately 65 seconds.</p><small>Evidence: Vite 7.3.5 build output.</small></article>
+          <article><div class="result-top"><span class="result-check">✓</span><strong>Backend automated tests</strong></div><p>4 tests passed, 0 failed. Coverage includes channel discovery, latest/history isolation, memory bounding, and SSE delivery.</p><small>Evidence: Node test runner, 4.51 seconds.</small></article>
+          <article><div class="result-top"><span class="result-check">✓</span><strong>Real-time dashboard behavior</strong></div><p>New readings are delivered by SSE. A channel displays Online for recent data and changes to Offline after 10 seconds without a reading.</p><small>Test data: JSON channel readings sent every 3 seconds.</small></article>
+        </div>
+        <h3>Demonstration checklist</h3>
+        <ol class="checklist">
+          <li>Start Backend V2 and confirm <code>/health</code> returns an OK response.</li>
+          <li>Start Frontend V2 and open the Smart Home dashboard.</li>
+          <li>Run one Node or Python sender for a selected channel.</li>
+          <li>Confirm the channel becomes Online and its values update.</li>
+          <li>Stop the sender; confirm the channel becomes Offline after approximately 10 seconds.</li>
+        </ol>
+        <div class="callout warning"><strong>Known limitations.</strong> Data-channel history is memory-only and is lost on restart. Large frontend bundles currently produce a Vite chunk-size warning. The local Ollama agent must be online for CPS chat, and Kokoro TTS is intentionally disabled on memory-constrained cloud instances.</div>
+      </section>
+
+      <section id="docker" class="doc-section">
+        <div class="section-heading"><span>03</span><div><h2>Docker</h2><p>Current status and a safe handoff template.</p></div></div>
+        <div class="callout neutral"><strong>Not currently configured.</strong> No Dockerfile, Compose file, or published Docker image exists in <code>frontend-v2</code> or <code>backend-v2</code>. The commands below are a template for after Dockerfiles are added; they are not part of the verified results above.</div>
+        <div class="command-cards">
+          <article><span>Backend template</span><pre><code>docker build -t cps-backend-v2 ./backend-v2
+docker run --env-file backend-v2/.env \
+  -p 7020:7020 cps-backend-v2</code></pre></article>
+          <article><span>Frontend template</span><pre><code>docker build -t cps-frontend-v2 ./frontend-v2
+docker run --env-file frontend-v2/.env \
+  -p 3000:3000 cps-frontend-v2</code></pre></article>
+        </div>
+        <p>When Docker support is implemented, document the final image names, exposed ports, persistent volumes, health checks, build targets, and Docker Hub links here.</p>
+      </section>
+
+      <section id="troubleshooting" class="doc-section">
+        <div class="section-heading"><span>04</span><div><h2>Troubleshooting</h2><p>The most common setup and runtime problems.</p></div></div>
+        <div class="faq">
+          <details open><summary>Frontend loads but live data does not appear</summary><p>Confirm <code>VITE_API_URL</code> points to the running backend, restart Vite after editing <code>.env</code>, and open <code>/api/data-channels</code> directly to verify connectivity. Also confirm the backend CORS list includes the frontend origin.</p></details>
+          <details><summary>A student sender receives HTTP 404 “Route not found”</summary><p>Use the exact path <code>/api/data-channels/CHANNEL_SLUG</code>. Valid slugs are <code>csi-wifi</code>, <code>body-vitals</code>, <code>lighting-acoustic</code>, <code>hic</code>, and <code>gaze-vision</code>. Redeploy the backend if the cloud service still runs an older revision.</p></details>
+          <details><summary>A student sender receives HTTP 401 or 403</summary><p>The sender key does not match the backend <code>DATA_CHANNEL_API_KEY</code>. Send it as <code>X-API-Key</code> or <code>Authorization: Bearer …</code>. Never place this key in frontend code.</p></details>
+          <details><summary>CPS chat says the local Ollama computer is offline</summary><p>Start Ollama, then start <code>local-agent.js</code>. Check that <code>CLOUD_WS_URL</code> uses <code>ws://</code> locally or <code>wss://</code> in production and that the local and cloud <code>AGENT_TOKEN</code> values match.</p></details>
+          <details><summary>The cloud instance exceeds 512 MB of memory</summary><p>Keep <code>KOKORO_ENABLED=false</code>. The ONNX speech model can exceed a small instance limit. Also retain the per-channel byte cap, reduce large CSI payloads, and keep channel history short.</p></details>
+        </div>
+      </section>
+
+      <section id="project-links" class="doc-section">
+        <div class="section-heading"><span>05</span><div><h2>Source, support &amp; ownership</h2><p>Repository and project owner information.</p></div></div>
+        <div class="link-grid">
+          <article><span>Backend repository</span><strong><a href="https://github.com/Zamidmustefa/cps_smart_home_backend_v2.git">GitHub repository</a></strong><p><code>Zamidmustefa/cps_smart_home_backend_v2</code></p></article>
+          <article><span>Branch / release</span><strong><code>main</code></strong><p>Document a release tag before final assessment.</p></article>
+          <article><span>Backend demo</span><strong><a href="https://cps-smart-home-backend-v2.onrender.com">Render deployment</a></strong><p>Configured public backend URL.</p></article>
+          <article><span>Docker image</span><strong>Not published</strong><p>Add Docker Hub or registry link after implementation.</p></article>
+          <article><span>License</span><strong>Not declared</strong><p>Add a LICENSE file and identify its SPDX name.</p></article>
+          <article><span>Support</span><strong>Project maintainer</strong><p>Add an issue tracker or monitored contact address.</p></article>
+        </div>
+        <div class="owner-card">
+          <div><span>Author name</span><strong>Zamid Mustefa</strong></div>
+          <div><span>Student ID</span><strong>24036215841</strong></div>
+          <div><span>Email</span><strong><a href="mailto:zamidmm@gmail.com">zamidmm@gmail.com</a></strong></div>
+          <div><span>Institution</span><strong>Xidian University</strong></div>
+        </div>
+      </section>
+
+      <footer>
+        <p>CPS Smart Home V2 · Frontend and Backend Project Documentation</p>
+        <a href="#overview">Back to top ↑</a>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
