@@ -19,8 +19,8 @@
         <a href="index.html" lang="en" aria-current="page">EN</a>
         <a href="zh.html" lang="zh-CN">中文</a>
       </nav>
-      <span class="version">Version 0.1.0</span>
-      <span class="updated">Updated 19 July 2026</span>
+      <span class="version">Version 0.2.0</span>
+      <span class="updated">Updated 22 July 2026</span>
     </div>
   </header>
 
@@ -54,9 +54,12 @@
 
     <main id="main" class="content">
       <section id="overview" class="hero doc-section">
-        <div class="eyebrow">Project documentation</div>
-        <h1>Smart-home sensing, visualization, and local AI chat.</h1>
-        <p class="hero-copy">CPS Smart Home V2 combines a Vue dashboard with a Node.js API that receives sensor JSON, streams new readings in real time, and relays browser chat to a local Ollama agent. This guide provides the shortest reliable path from a clean computer to a working development environment.</p>
+        <div class="eyebrow">Cyber-physical system documentation</div>
+        <h1>An integrated platform for sensing, real-time intelligence, visualization, and human–AI interaction.</h1>
+        <p class="hero-copy">CPS Smart Home V2 is a complete cyber-physical system that connects distributed sensors, live data services, interactive dashboards, secure user access, and a locally operated AI assistant. It collects multi-source JSON readings, processes and streams them through a central API, presents system status and analytics in real time, and supports intelligent chat without exposing the local AI service directly to the browser. This guide covers the architecture, installation, configuration, operation, testing, and deployment of the complete platform.</p>
+        <div class="tech-stack" aria-label="Technology stack">
+          <span>Vue 3</span><span>Vite</span><span>Ant Design Vue</span><span>Plotly.js</span><span>Supabase</span><span>Node.js</span><span>Express</span><span>HTTP + SSE</span><span>WebSocket</span><span>Ollama</span>
+        </div>
         <div class="hero-actions">
           <a class="button primary" href="#frontend-installation">Install frontend</a>
           <a class="button secondary" href="#backend-installation">Install backend</a>
@@ -93,25 +96,35 @@
           <h3>Prerequisites</h3>
           <div class="requirement-grid">
             <article><strong>Node.js</strong><span>22.x recommended</span><small>Supported: ≥22 and &lt;25</small></article>
-            <article><strong>npm</strong><span>Bundled with Node.js</span><small>Uses package-lock.json</small></article>
+            <article><strong>Yarn</strong><span>Install after Node.js</span><small>Uses <code>yarn.lock</code></small></article>
             <article><strong>Git</strong><span>Recent stable version</span><small>For obtaining source</small></article>
             <article><strong>Browser</strong><span>Chrome, Edge, or Firefox</span><small>Current stable release</small></article>
             <article><strong>Supabase</strong><span>Project URL + publishable key</span><small>Required for hosted authentication</small></article>
             <article><strong>Backend</strong><span>Local or deployed URL</span><small>Required for live channels and chat</small></article>
           </div>
+          <h4>Install Node.js, Git, and Yarn</h4>
+          <ol class="steps">
+            <li><div><strong>Install Node.js 22 LTS</strong><p>Download the installer for your operating system from <a href="https://nodejs.org/en/download">nodejs.org</a>. Accept the default installer options; npm is included with Node.js. Close and reopen the terminal after installation.</p></div></li>
+            <li><div><strong>Install Git</strong><p>Download Git from <a href="https://git-scm.com/downloads">git-scm.com</a> and accept the default options. Windows users can then use PowerShell or Git Bash.</p></div></li>
+            <li><div><strong>Verify Node.js, npm, and Git</strong><pre><code>node --version
+npm --version
+git --version</code></pre><p>Node.js should report version 22.x.</p></div></li>
+            <li><div><strong>Install Yarn</strong><pre><code>npm install --global yarn
+yarn --version</code></pre><p>Restart the terminal if the <code>yarn</code> command is not immediately available.</p></div></li>
+          </ol>
         </div>
 
         <div id="frontend-installation" class="subsection anchor-target">
           <h3>Installation</h3>
           <ol class="steps">
-            <li><div><strong>Obtain the project</strong><p>Replace the placeholder after a GitHub remote is assigned.</p><pre><code>git clone https://github.com/ORGANIZATION/REPOSITORY.git
-cd REPOSITORY/frontend-v2</code></pre></div></li>
-            <li><div><strong>Install locked dependencies</strong><p>Use <code>npm ci</code> for a repeatable installation.</p><pre><code>npm ci</code></pre></div></li>
-            <li><div><strong>Create local configuration</strong><pre><code># Windows PowerShell
+            <li><div><strong>Download the frontend</strong><p>Clone the repository with Git:</p><pre><code>git clone https://github.com/Zamidmustefa/cps_smart_home_frontend_v2.git
+cd cps_smart_home_frontend_v2</code></pre><p>Without Git, open the <a href="https://github.com/Zamidmustefa/cps_smart_home_frontend_v2">frontend repository</a>, select <strong>Code → Download ZIP</strong>, extract it, and open a terminal in the extracted folder.</p></div></li>
+            <li><div><strong>Install all frontend packages</strong><p>The frozen lockfile installs the tested dependency versions.</p><pre><code>yarn install --frozen-lockfile</code></pre></div></li>
+            <li><div><strong>Create the frontend environment file</strong><pre><code># Windows PowerShell
 Copy-Item .env.example .env
 
 # macOS or Linux
-cp .env.example .env</code></pre></div></li>
+cp .env.example .env</code></pre><p>Edit <code>.env</code> in a text editor and replace the placeholder Supabase values. Use the local backend URLs shown below when running both projects on one computer.</p></div></li>
           </ol>
         </div>
 
@@ -133,10 +146,11 @@ VITE_CHAT_WS_URL=ws://localhost:7020/ws/client</code></pre>
         <div id="frontend-run" class="subsection anchor-target">
           <h3>How to run</h3>
           <div class="command-cards">
-            <article><span>Development</span><pre><code>npm run dev</code></pre><p>Open <a href="http://localhost:3000">http://localhost:3000</a>.</p></article>
-            <article><span>Production check</span><pre><code>npm run build
-npm run preview</code></pre><p>The preview also defaults to port 3000.</p></article>
+            <article><span>Development</span><pre><code>yarn dev</code></pre><p>Open <a href="http://localhost:3000">http://localhost:3000</a>.</p></article>
+            <article><span>Production check</span><pre><code>yarn build
+yarn preview</code></pre><p>The preview also defaults to port 3000.</p></article>
           </div>
+          <p class="note"><strong>Recommended start order:</strong> start the backend on port 7020 first, then start the frontend in a second terminal. Press <code>Ctrl+C</code> in each terminal to stop its server.</p>
           <p class="note"><strong>Login credentials:</strong> no shared demo account is stored in this repository. Use an account from the configured Supabase project, or keep the current temporary browser-access configuration if authentication guards are disabled.</p>
         </div>
       </section>
@@ -164,14 +178,19 @@ npm run preview</code></pre><p>The preview also defaults to port 3000.</p></arti
         <div id="backend-installation" class="subsection anchor-target">
           <h3>Installation</h3>
           <ol class="steps">
-            <li><div><strong>Enter the backend directory</strong><pre><code>cd REPOSITORY/backend-v2</code></pre></div></li>
-            <li><div><strong>Install locked dependencies</strong><pre><code>npm ci</code></pre></div></li>
-            <li><div><strong>Create local configuration</strong><pre><code># Windows PowerShell
+            <li><div><strong>Install the required tools</strong><p>Install <a href="https://nodejs.org/en/download">Node.js 22 LTS</a> and <a href="https://git-scm.com/downloads">Git</a> as described in the frontend prerequisites. npm is installed automatically with Node.js.</p><pre><code>node --version
+npm --version
+git --version</code></pre></div></li>
+            <li><div><strong>Download the backend</strong><p>Clone the repository with Git:</p><pre><code>git clone https://github.com/Zamidmustefa/cps_smart_home_backend_v2.git
+cd cps_smart_home_backend_v2</code></pre><p>Without Git, open the <a href="https://github.com/Zamidmustefa/cps_smart_home_backend_v2">backend repository</a>, select <strong>Code → Download ZIP</strong>, extract it, and open a terminal in the extracted folder.</p></div></li>
+            <li><div><strong>Install all backend packages</strong><p><code>npm ci</code> installs the exact versions from <code>package-lock.json</code>.</p><pre><code>npm ci</code></pre></div></li>
+            <li><div><strong>Install Nodemon (optional)</strong><p>The included <code>npm run dev</code> command already restarts on file changes. Install Nodemon only if you prefer it.</p><pre><code>npm install --global nodemon
+nodemon --version</code></pre></div></li>
+            <li><div><strong>Create the backend environment file</strong><pre><code># Windows PowerShell
 Copy-Item .env.example .env
 
 # macOS or Linux
-cp .env.example .env</code></pre></div></li>
-            <li><div><strong>Replace development placeholders</strong><p>Generate unique values for <code>AGENT_TOKEN</code> and, when ingestion must be protected, <code>DATA_CHANNEL_API_KEY</code>.</p></div></li>
+cp .env.example .env</code></pre><p>Edit <code>.env</code> before starting the server. Keep secrets out of Git.</p></div></li>
           </ol>
         </div>
 
@@ -189,6 +208,18 @@ cp .env.example .env</code></pre></div></li>
             <tr><td><code>KOKORO_ENABLED</code></td><td>No</td><td>Keep <code>false</code> on a 512 MB instance.</td></tr>
             <tr><td><code>KEEP_ALIVE_ENABLED</code></td><td>No</td><td>Optional deployment keep-alive. Default: <code>false</code>.</td></tr>
           </tbody></table></div>
+          <h4>Minimal local <code>.env</code></h4>
+          <pre><code>NODE_ENV=development
+PORT=7020
+AGENT_TOKEN=replace-with-a-long-random-token
+CLIENT_TIMEOUT_MS=120000
+FRONTEND_URL=http://localhost:3000
+FRONTEND_URLS=http://localhost:3000,http://localhost:5173
+PUBLIC_BACKEND_URL=http://localhost:7020
+DATA_CHANNEL_API_KEY=
+KOKORO_ENABLED=false
+KEEP_ALIVE_ENABLED=false</code></pre>
+          <p class="note">Leaving <code>DATA_CHANNEL_API_KEY</code> empty is convenient for local development only. Set a strong value in production. The complete <code>.env.example</code> also includes optional Ollama agent, search, voice service, history, and Kokoro settings.</p>
           <div class="callout danger"><strong>Do not commit secrets.</strong> Keep the real <code>.env</code>, data-channel API key, Supabase private credentials, and agent token outside documentation and source control. If a key has already been shared publicly, rotate it.</div>
         </div>
 
@@ -196,9 +227,11 @@ cp .env.example .env</code></pre></div></li>
           <h3>How to run</h3>
           <div class="command-cards">
             <article><span>Development</span><pre><code>npm run dev</code></pre><p>Automatic restart with Node watch mode.</p></article>
+            <article><span>Development with Nodemon</span><pre><code>nodemon server.js</code></pre><p>Optional automatic restart using Nodemon.</p></article>
             <article><span>Normal start</span><pre><code>npm start</code></pre><p>API: <a href="http://localhost:7020">http://localhost:7020</a></p></article>
             <article><span>Tests</span><pre><code>npm test</code></pre><p>Runs the Node data-channel test suite.</p></article>
           </div>
+          <p class="note">Run one start command only. Keep that terminal open while using the frontend; press <code>Ctrl+C</code> to stop the backend.</p>
           <pre><code>curl http://localhost:7020/ping
 curl http://localhost:7020/health
 curl http://localhost:7020/api/data-channels</code></pre>
@@ -254,7 +287,7 @@ python examples/send_json_file.py data.json</code></pre>
       <section id="results" class="doc-section">
         <div class="section-heading"><span>02</span><div><h2>Results &amp; verification</h2><p>Evidence recorded on Windows PowerShell with the repository state from 19 July 2026.</p></div></div>
         <div class="results-grid">
-          <article><div class="result-top"><span class="result-check">✓</span><strong>Frontend production build</strong></div><p><code>npm run build</code> completed successfully with 3,346 modules transformed in approximately 65 seconds.</p><small>Evidence: Vite 7.3.5 build output.</small></article>
+          <article><div class="result-top"><span class="result-check">✓</span><strong>Frontend production build</strong></div><p><code>yarn build</code> completed successfully with 3,346 modules transformed in approximately 65 seconds.</p><small>Evidence: Vite 7.3.5 build output.</small></article>
           <article><div class="result-top"><span class="result-check">✓</span><strong>Backend automated tests</strong></div><p>4 tests passed, 0 failed. Coverage includes channel discovery, latest/history isolation, memory bounding, and SSE delivery.</p><small>Evidence: Node test runner, 4.51 seconds.</small></article>
           <article><div class="result-top"><span class="result-check">✓</span><strong>Real-time dashboard behavior</strong></div><p>New readings are delivered by SSE. A channel displays Online for recent data and changes to Offline after 10 seconds without a reading.</p><small>Test data: JSON channel readings sent every 3 seconds.</small></article>
         </div>
@@ -297,6 +330,7 @@ docker run --env-file frontend-v2/.env \
       <section id="project-links" class="doc-section">
         <div class="section-heading"><span>05</span><div><h2>Source, support &amp; ownership</h2><p>Repository and project owner information.</p></div></div>
         <div class="link-grid">
+          <article><span>Frontend repository</span><strong><a href="https://github.com/Zamidmustefa/cps_smart_home_frontend_v2.git">GitHub repository</a></strong><p><code>Zamidmustefa/cps_smart_home_frontend_v2</code></p></article>
           <article><span>Backend repository</span><strong><a href="https://github.com/Zamidmustefa/cps_smart_home_backend_v2.git">GitHub repository</a></strong><p><code>Zamidmustefa/cps_smart_home_backend_v2</code></p></article>
           <article><span>Branch / release</span><strong><code>main</code></strong><p>Document a release tag before final assessment.</p></article>
           <article><span>Backend demo</span><strong><a href="https://cps-smart-home-backend-v2.onrender.com">Render deployment</a></strong><p>Configured public backend URL.</p></article>

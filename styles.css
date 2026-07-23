@@ -63,6 +63,8 @@ p { margin: 0 0 16px; color: #42526b; }
 .hero::after { content: ""; position: absolute; right: -95px; top: -95px; width: 300px; height: 300px; border: 1px solid rgba(23,105,224,.14); border-radius: 50%; box-shadow: 0 0 0 35px rgba(23,105,224,.03), 0 0 0 75px rgba(8,167,194,.025); pointer-events: none; }
 .eyebrow { display: inline-flex; padding: 6px 11px; color: var(--blue); background: #eaf3ff; border: 1px solid #cfe3ff; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
 .hero-copy { max-width: 800px; color: #52627a; font-size: 1.05rem; }
+.tech-stack { display: flex; flex-wrap: wrap; gap: 8px; max-width: 900px; margin-top: 22px; }
+.tech-stack span { padding: 6px 10px; color: #34445a; background: #f6f8fa; border: 1px solid #d8dee4; border-radius: 999px; font-size: 11px; font-weight: 700; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 36px; }
 .button { display: inline-flex; justify-content: center; padding: 10px 17px; border-radius: 10px; font-size: 13px; font-weight: 750; transition: .2s ease; }
 .button:hover { transform: translateY(-1px); }

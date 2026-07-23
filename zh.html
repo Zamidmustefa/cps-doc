@@ -3,15 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="CPS 智能家居 Frontend V2 与 Backend V2 的安装、配置、运行、接口、结果和支持文档。" />
-  <title>CPS 智能家居 V2 — 项目文档</title>
+  <meta name="description" content="CPS Smart Home V2 网络物理系统的架构、安装、配置、运行、接口、测试与部署文档。" />
+  <title>cps-doc.github.io — CPS Smart Home V2 中文文档</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <a class="skip-link" href="#main">跳到文档正文</a>
   <header class="topbar">
     <a class="brand" href="#overview" aria-label="CPS 文档首页">
-      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4 42 14v20L24 44 6 34V14L24 4Z"/><path d="m15 20 9-6 9 6v10l-9 6-9-6V20Z"/><circle cx="24" cy="24" r="4"/></svg></span>
       <span><strong>CPS 智能家居</strong><small>V2 项目文档</small></span>
     </a>
     <div class="topbar-meta">
@@ -19,8 +18,8 @@
         <a href="index.html" lang="en">EN</a>
         <a href="zh.html" lang="zh-CN" aria-current="page">中文</a>
       </nav>
-      <span class="version">版本 0.1.0</span>
-      <span class="updated">更新于 2026 年 7 月 19 日</span>
+      <span class="version">版本 0.2.0</span>
+      <span class="updated">更新于 2026 年 7 月 22 日</span>
     </div>
   </header>
 
@@ -54,9 +53,12 @@
 
     <main id="main" class="content">
       <section id="overview" class="hero doc-section">
-        <div class="eyebrow">项目文档</div>
-        <h1>智能家居感知、可视化与本地 AI 对话平台</h1>
-        <p class="hero-copy">CPS 智能家居 V2 由 Vue 仪表板和 Node.js API 组成。后端接收传感器 JSON，通过实时数据流更新前端，并将浏览器对话转发给本地 Ollama 智能体。本指南提供从新电脑到可运行开发环境的最短可靠步骤。</p>
+        <div class="eyebrow">网络物理系统项目文档</div>
+        <h1>集感知、实时智能、可视化与人机智能交互于一体的综合平台</h1>
+        <p class="hero-copy">CPS Smart Home V2 是一个完整的网络物理系统，将分布式传感器、实时数据服务、交互式仪表板、安全用户访问和本地运行的 AI 助手连接在一起。系统采集多源 JSON 数据，通过中央 API 处理并实时推送，在前端展示系统状态与分析结果，同时支持智能对话，且不会把本地 AI 服务直接暴露给浏览器。本指南涵盖整个平台的架构、安装、配置、运行、测试与部署。</p>
+        <div class="tech-stack" aria-label="技术栈">
+          <span>Vue 3</span><span>Vite</span><span>Ant Design Vue</span><span>Plotly.js</span><span>Supabase</span><span>Node.js</span><span>Express</span><span>HTTP + SSE</span><span>WebSocket</span><span>Ollama</span>
+        </div>
         <div class="hero-actions"><a class="button primary" href="#frontend-installation">安装前端</a><a class="button secondary" href="#backend-installation">安装后端</a></div>
         <div class="status-grid" aria-label="项目状态">
           <article><span class="status-icon success">✓</span><div><strong>前端构建</strong><small>通过 · Vite 7.3.5</small></div></article>
@@ -86,24 +88,34 @@
           <h3>前置要求</h3>
           <div class="requirement-grid">
             <article><strong>Node.js</strong><span>建议 22.x</span><small>支持 ≥22 且 &lt;25</small></article>
-            <article><strong>npm</strong><span>随 Node.js 安装</span><small>使用 package-lock.json</small></article>
+            <article><strong>Yarn</strong><span>安装 Node.js 后安装</span><small>使用 <code>yarn.lock</code></small></article>
             <article><strong>Git</strong><span>最新稳定版本</span><small>用于获取源码</small></article>
             <article><strong>浏览器</strong><span>Chrome、Edge 或 Firefox</span><small>最新稳定版本</small></article>
             <article><strong>Supabase</strong><span>项目 URL 和发布密钥</span><small>用于托管身份验证</small></article>
             <article><strong>后端服务</strong><span>本地或已部署地址</span><small>用于实时数据和对话</small></article>
           </div>
+          <h4>安装 Node.js、Git 和 Yarn</h4>
+          <ol class="steps">
+            <li><div><strong>安装 Node.js 22 LTS</strong><p>从 <a href="https://nodejs.org/en/download">Node.js 官方网站</a>下载适用于当前操作系统的安装程序。使用默认安装选项；npm 会随 Node.js 一同安装。安装完成后关闭并重新打开终端。</p></div></li>
+            <li><div><strong>安装 Git</strong><p>从 <a href="https://git-scm.com/downloads">Git 官方网站</a>下载安装程序并使用默认选项。Windows 用户可以使用 PowerShell 或 Git Bash。</p></div></li>
+            <li><div><strong>检查 Node.js、npm 和 Git</strong><pre><code>node --version
+npm --version
+git --version</code></pre><p>Node.js 应显示 22.x 版本。</p></div></li>
+            <li><div><strong>安装 Yarn</strong><pre><code>npm install --global yarn
+yarn --version</code></pre><p>如果不能立即识别 <code>yarn</code> 命令，请重新打开终端。</p></div></li>
+          </ol>
         </div>
         <div id="frontend-installation" class="subsection anchor-target">
           <h3>安装</h3>
           <ol class="steps">
-            <li><div><strong>获取项目</strong><p>确定 GitHub 地址后替换以下占位符。</p><pre><code>git clone https://github.com/ORGANIZATION/REPOSITORY.git
-cd REPOSITORY/frontend-v2</code></pre></div></li>
-            <li><div><strong>安装锁定版本的依赖</strong><pre><code>npm ci</code></pre></div></li>
-            <li><div><strong>创建本地配置</strong><pre><code># Windows PowerShell
+            <li><div><strong>下载前端项目</strong><p>使用 Git 克隆仓库：</p><pre><code>git clone https://github.com/Zamidmustefa/cps_smart_home_frontend_v2.git
+cd cps_smart_home_frontend_v2</code></pre><p>如果没有使用 Git，请打开<a href="https://github.com/Zamidmustefa/cps_smart_home_frontend_v2">前端仓库</a>，选择 <strong>Code → Download ZIP</strong>，解压后在该文件夹中打开终端。</p></div></li>
+            <li><div><strong>安装全部前端依赖</strong><p>使用锁文件安装经过测试的依赖版本。</p><pre><code>yarn install --frozen-lockfile</code></pre></div></li>
+            <li><div><strong>创建前端环境文件</strong><pre><code># Windows PowerShell
 Copy-Item .env.example .env
 
 # macOS 或 Linux
-cp .env.example .env</code></pre></div></li>
+cp .env.example .env</code></pre><p>使用文本编辑器打开 <code>.env</code>，替换 Supabase 占位值。如果前后端在同一台电脑运行，请使用下方列出的本地后端地址。</p></div></li>
           </ol>
         </div>
         <div id="frontend-configuration" class="subsection anchor-target">
@@ -115,14 +127,19 @@ cp .env.example .env</code></pre></div></li>
             <tr><td><code>VITE_API_URL</code></td><td>REST 与 SSE 基础地址。</td><td><code>http://localhost:7020</code></td></tr>
             <tr><td><code>VITE_CHAT_WS_URL</code></td><td>浏览器对话 WebSocket 地址。</td><td><code>ws://localhost:7020/ws/client</code></td></tr>
           </tbody></table></div>
+          <pre><code>VITE_SUPABASE_URL=https://PROJECT.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+VITE_API_URL=http://localhost:7020
+VITE_CHAT_WS_URL=ws://localhost:7020/ws/client</code></pre>
         </div>
         <div id="frontend-run" class="subsection anchor-target">
           <h3>运行方法</h3>
           <div class="command-cards">
-            <article><span>开发模式</span><pre><code>npm run dev</code></pre><p>打开 <a href="http://localhost:3000">http://localhost:3000</a>。</p></article>
-            <article><span>生产构建检查</span><pre><code>npm run build
-npm run preview</code></pre><p>预览默认使用 3000 端口。</p></article>
+            <article><span>开发模式</span><pre><code>yarn dev</code></pre><p>打开 <a href="http://localhost:3000">http://localhost:3000</a>。</p></article>
+            <article><span>生产构建检查</span><pre><code>yarn build
+yarn preview</code></pre><p>预览默认使用 3000 端口。</p></article>
           </div>
+          <p class="note"><strong>建议启动顺序：</strong>先启动 7020 端口上的后端，再在第二个终端中启动前端。在各终端按 <code>Ctrl+C</code> 可停止服务。</p>
           <p class="note"><strong>登录账户：</strong>仓库中没有公共演示账户。请使用当前 Supabase 项目中的账户；若临时关闭了身份验证守卫，可直接访问页面。</p>
         </div>
       </section>
@@ -147,10 +164,19 @@ npm run preview</code></pre><p>预览默认使用 3000 端口。</p></article>
         <div id="backend-installation" class="subsection anchor-target">
           <h3>安装</h3>
           <ol class="steps">
-            <li><div><strong>进入后端目录</strong><pre><code>cd REPOSITORY/backend-v2</code></pre></div></li>
-            <li><div><strong>安装锁定版本的依赖</strong><pre><code>npm ci</code></pre></div></li>
-            <li><div><strong>创建本地配置</strong><pre><code>Copy-Item .env.example .env</code></pre></div></li>
-            <li><div><strong>替换开发占位符</strong><p>为 <code>AGENT_TOKEN</code> 生成唯一值；生产环境还应设置 <code>DATA_CHANNEL_API_KEY</code>。</p></div></li>
+            <li><div><strong>安装必要工具</strong><p>按照前端前置要求安装 <a href="https://nodejs.org/en/download">Node.js 22 LTS</a> 和 <a href="https://git-scm.com/downloads">Git</a>。npm 会随 Node.js 自动安装。</p><pre><code>node --version
+npm --version
+git --version</code></pre></div></li>
+            <li><div><strong>下载后端项目</strong><p>使用 Git 克隆仓库：</p><pre><code>git clone https://github.com/Zamidmustefa/cps_smart_home_backend_v2.git
+cd cps_smart_home_backend_v2</code></pre><p>如果没有使用 Git，请打开<a href="https://github.com/Zamidmustefa/cps_smart_home_backend_v2">后端仓库</a>，选择 <strong>Code → Download ZIP</strong>，解压后在该文件夹中打开终端。</p></div></li>
+            <li><div><strong>安装全部后端依赖</strong><p><code>npm ci</code> 根据 <code>package-lock.json</code> 安装准确版本。</p><pre><code>npm ci</code></pre></div></li>
+            <li><div><strong>安装 Nodemon（可选）</strong><p>项目自带的 <code>npm run dev</code> 已支持文件变化后自动重启。仅在希望使用 Nodemon 时安装。</p><pre><code>npm install --global nodemon
+nodemon --version</code></pre></div></li>
+            <li><div><strong>创建后端环境文件</strong><pre><code># Windows PowerShell
+Copy-Item .env.example .env
+
+# macOS 或 Linux
+cp .env.example .env</code></pre><p>启动服务器前编辑 <code>.env</code>，不要将任何真实密钥提交到 Git。</p></div></li>
           </ol>
         </div>
         <div id="backend-configuration" class="subsection anchor-target">
@@ -165,15 +191,29 @@ npm run preview</code></pre><p>预览默认使用 3000 端口。</p></article>
             <tr><td><code>CLIENT_TIMEOUT_MS</code></td><td>否</td><td>对话超时，默认 120000 毫秒。</td></tr>
             <tr><td><code>KOKORO_ENABLED</code></td><td>否</td><td>512 MB 云实例应保持 <code>false</code>。</td></tr>
           </tbody></table></div>
+          <h4>最小本地 <code>.env</code> 配置</h4>
+          <pre><code>NODE_ENV=development
+PORT=7020
+AGENT_TOKEN=replace-with-a-long-random-token
+CLIENT_TIMEOUT_MS=120000
+FRONTEND_URL=http://localhost:3000
+FRONTEND_URLS=http://localhost:3000,http://localhost:5173
+PUBLIC_BACKEND_URL=http://localhost:7020
+DATA_CHANNEL_API_KEY=
+KOKORO_ENABLED=false
+KEEP_ALIVE_ENABLED=false</code></pre>
+          <p class="note">仅在本地开发时可以将 <code>DATA_CHANNEL_API_KEY</code> 留空；生产环境必须设置强密钥。完整的 <code>.env.example</code> 还包含可选的 Ollama 智能体、搜索、语音服务、历史记录和 Kokoro 设置。</p>
           <div class="callout danger"><strong>不要提交密钥：</strong>真实 <code>.env</code>、数据通道 API 密钥、Supabase 私密凭据和智能体令牌均不得写入文档或提交到源码仓库。</div>
         </div>
         <div id="backend-run" class="subsection anchor-target">
           <h3>运行方法</h3>
           <div class="command-cards">
             <article><span>开发模式</span><pre><code>npm run dev</code></pre><p>使用 Node watch 自动重启。</p></article>
+            <article><span>使用 Nodemon 开发</span><pre><code>nodemon server.js</code></pre><p>使用 Nodemon 自动重启的可选方式。</p></article>
             <article><span>正常启动</span><pre><code>npm start</code></pre><p>API：<a href="http://localhost:7020">http://localhost:7020</a></p></article>
             <article><span>自动化测试</span><pre><code>npm test</code></pre><p>运行数据通道测试。</p></article>
           </div>
+          <p class="note">每次只运行一种启动命令。使用前端期间请保持后端终端开启；按 <code>Ctrl+C</code> 停止后端。</p>
           <pre><code>curl http://localhost:7020/ping
 curl http://localhost:7020/health
 curl http://localhost:7020/api/data-channels</code></pre>
@@ -221,7 +261,7 @@ python examples/send_json_file.py data.json</code></pre>
       <section id="results" class="doc-section">
         <div class="section-heading"><span>02</span><div><h2>结果与验证</h2><p>以下证据来自 2026 年 7 月 19 日的 Windows PowerShell 测试。</p></div></div>
         <div class="results-grid">
-          <article><div class="result-top"><span class="result-check">✓</span><strong>前端生产构建</strong></div><p><code>npm run build</code> 成功，Vite 转换 3,346 个模块，用时约 65 秒。</p><small>证据：Vite 7.3.5 构建输出。</small></article>
+          <article><div class="result-top"><span class="result-check">✓</span><strong>前端生产构建</strong></div><p><code>yarn build</code> 成功，Vite 转换 3,346 个模块，用时约 65 秒。</p><small>证据：Vite 7.3.5 构建输出。</small></article>
           <article><div class="result-top"><span class="result-check">✓</span><strong>后端自动化测试</strong></div><p>4 项通过，0 项失败。包括通道列表、历史隔离、内存限制和 SSE 推送。</p><small>证据：Node 测试运行器，用时 4.51 秒。</small></article>
           <article><div class="result-top"><span class="result-check">✓</span><strong>实时仪表板</strong></div><p>SSE 推送新数据。数据停止约 10 秒后，通道状态从“在线”变为“离线”。</p><small>测试数据：每 3 秒发送一次 JSON。</small></article>
         </div>
@@ -253,9 +293,10 @@ docker run --env-file frontend-v2/.env \
       </section>
 
       <section id="project-links" class="doc-section">
-        <div class="section-heading"><span>05</span><div><h2>源码、支持与所有权</h2><p>公开提交之前，请完成以下占位内容。</p></div></div>
+        <div class="section-heading"><span>05</span><div><h2>源码、支持与所有权</h2><p>项目仓库与负责人信息。</p></div></div>
         <div class="link-grid">
-          <article><span>GitHub 仓库</span><strong>尚未配置</strong><p><code>git remote -v</code> 没有返回远程地址。</p></article>
+          <article><span>前端仓库</span><strong><a href="https://github.com/Zamidmustefa/cps_smart_home_frontend_v2.git">GitHub 仓库</a></strong><p><code>Zamidmustefa/cps_smart_home_frontend_v2</code></p></article>
+          <article><span>后端仓库</span><strong><a href="https://github.com/Zamidmustefa/cps_smart_home_backend_v2.git">GitHub 仓库</a></strong><p><code>Zamidmustefa/cps_smart_home_backend_v2</code></p></article>
           <article><span>分支 / 发布</span><strong><code>main</code></strong><p>最终评审前添加版本标签。</p></article>
           <article><span>后端演示</span><strong><a href="https://cps-smart-home-backend-v2.onrender.com">Render 部署</a></strong><p>项目当前配置的公共后端。</p></article>
           <article><span>Docker 镜像</span><strong>尚未发布</strong><p>实现后添加 Docker Hub 或镜像仓库链接。</p></article>
@@ -263,8 +304,8 @@ docker run --env-file frontend-v2/.env \
           <article><span>支持方式</span><strong>项目维护人员</strong><p>添加问题跟踪器或受监控的联系邮箱。</p></article>
         </div>
         <div class="owner-card">
-          <div><span>作者姓名</span><strong>[学生 / 团队名称]</strong></div><div><span>学生编号</span><strong>[学生编号]</strong></div>
-          <div><span>邮箱</span><strong>[学校邮箱]</strong></div><div><span>机构</span><strong>[院系 / 学校]</strong></div>
+          <div><span>作者姓名</span><strong>Zamid Mustefa</strong></div><div><span>学生编号</span><strong>24036215841</strong></div>
+          <div><span>邮箱</span><strong><a href="mailto:zamidmm@gmail.com">zamidmm@gmail.com</a></strong></div><div><span>机构</span><strong>西安电子科技大学（Xidian University）</strong></div>
         </div>
       </section>
       <footer><p>CPS 智能家居 V2 · 前端与后端项目文档</p><a href="#overview">返回顶部 ↑</a></footer>
